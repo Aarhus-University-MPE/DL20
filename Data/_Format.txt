@@ -1,15 +1,4 @@
-#Incrementing sample nr
-QQQQQ
-
-#ISD 1 data     Depth in m      
-$ISDPT          dddd.ddd        M   ppp.pppp    B   tt.tt   C*xx<CR><LF>    
-$ISDPT          DDDD.DDD        M   PPP.PPPP    B   TT.TT   C*XX<CR><LF>    
-$ISALL  hhh.h   sll.l   srrr.r  
-a.aaa   a.aaa   a.aaa   g.ggg   g.ggg   g.ggg   m.mmm   m.mmm   m.mmm*YY<CR><LF><LF>    
-FFFFF   GGGGG   VVVVV   
-B
-
-
+Example data:
 511	23542	23436	13468.00	0	ISDPT,-000.192,M,000.9914,B,23.74,C 28	ISHPR,237.68,+53.85,-177.89 57	ISDPT,-000.145,M,000.9884,B,23.65,C 2A
 
 

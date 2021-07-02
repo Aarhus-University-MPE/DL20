@@ -1,0 +1,7 @@
+{
+    "board": "arduino:avr:nano",
+    "sketch": "src\\Arduino\\SD_Query\\SD_Query.ino",
+    "port": "COM5",
+    "programmer": "AVR ISP",
+    "configuration": "cpu=atmega328old"
+}

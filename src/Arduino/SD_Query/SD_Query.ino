@@ -20,13 +20,16 @@ void setup() {
   Serial.begin(115200);
   while (!Serial);
 
-  Serial.print("Initializing SD card...");
+  //Serial.print("Initializing SD card... ");
 
-  if (!SD.begin(chipSelect)) systemActive = false;
-  else systemActive = true;
-
-  Serial.println("initialization done.");
-
+  if (!SD.begin(chipSelect)){
+    systemActive = false;
+    //Serial.println("Connection Failed!");
+  }
+  else{
+    systemActive = true;
+    //Serial.println("initialization done.");
+  }
 }
 
 void loop() {
@@ -35,33 +38,22 @@ void loop() {
   delay(250);
 }
 
-void printDirectory(File dir, int numTabs) {
-
-  while (true) {
+void printFiles(File dir, int numTabs)
+{
+  while (true)
+  {
     File entry =  dir.openNextFile();
+    if (! entry) break;
 
-    if (! entry) {
-      // no more files
-      break;
-    }
-
-    for (uint8_t i = 0; i < numTabs; i++) {
-      Serial.print('\t');
-    }
-
-    Serial.print(entry.name());
-
-    if (entry.isDirectory()) {
-      Serial.println("/");
-      printDirectory(entry, numTabs + 1);
-    } else {
-      // files have sizes, directories do not
+    if (!entry.isDirectory()) {
+      Serial.print(entry.name());
       Serial.print("\t\t");
       Serial.println(entry.size(), DEC);
     }
     entry.close();
   }
 }
+
 
 // Receive Commands
 void recvWithEndMarker() {
@@ -99,9 +91,10 @@ void parseCommand(String com)
   if (part1.equalsIgnoreCase("query")) {
     if (part2.equalsIgnoreCase("all")) {
       if(systemActive){
+        Serial.println("Files in system:");
         file = SD.open("/");
-        printDirectory(file, 0);
-        Serial.println("done!");
+        file.rewindDirectory();
+        printFiles(file, 0);
         file.close();
       }
       else Serial.println("SD card connection Error!");
@@ -126,7 +119,8 @@ void parseCommand(String com)
   }
   else if (part1.equalsIgnoreCase("download")) {
     if(systemActive){
-        Serial.println("Opening file: " + part2 + ".txt");
+        Serial.println("Downloading file: " + part2 + ".txt");
+        Serial.println();
         file = SD.open(part2 + ".txt");
         if(file) {
             while(file.available()){
