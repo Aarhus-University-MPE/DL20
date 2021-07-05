@@ -43,7 +43,10 @@ void printFiles(File dir, int numTabs)
   while (true)
   {
     File entry =  dir.openNextFile();
-    if (! entry) break;
+    if (! entry){
+      File entry =  dir.openNextFile();
+      if(! entry) break;
+    } 
 
     if (!entry.isDirectory()) {
       Serial.print(entry.name());
@@ -96,6 +99,7 @@ void parseCommand(String com)
         file.rewindDirectory();
         printFiles(file, 0);
         file.close();
+        Serial.println("End of storage");
       }
       else Serial.println("SD card connection Error!");
     }
@@ -127,6 +131,7 @@ void parseCommand(String com)
                 Serial.write(file.read());    
             }
             file.close();
+            Serial.println("End of File");
         }
         else Serial.println("File not found!");
     }
