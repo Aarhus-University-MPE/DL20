@@ -22,11 +22,11 @@ void setup() {
 
   //Serial.print("Initializing SD card... ");
 
-  if (!SD.begin(chipSelect)){
+  if (!SD.begin(chipSelect)) {
     systemActive = false;
     //Serial.println("Connection Failed!");
   }
-  else{
+  else {
     systemActive = true;
     //Serial.println("initialization done.");
   }
@@ -43,10 +43,10 @@ void printFiles(File dir, int numTabs)
   while (true)
   {
     File entry =  dir.openNextFile();
-    if (! entry){
+    if (! entry) {
       File entry =  dir.openNextFile();
-      if(! entry) break;
-    } 
+      if (! entry) break;
+    }
 
     if (!entry.isDirectory()) {
       Serial.print(entry.name());
@@ -93,11 +93,12 @@ void parseCommand(String com)
 
   if (part1.equalsIgnoreCase("query")) {
     if (part2.equalsIgnoreCase("all")) {
-      if(systemActive){
+      if (systemActive) {
         Serial.println("Files in system:");
         file = SD.open("/");
         file.rewindDirectory();
         printFiles(file, 0);
+        file.rewindDirectory();
         file.close();
         Serial.println("End of storage");
       }
@@ -110,30 +111,56 @@ void parseCommand(String com)
 
   else if (part1.equalsIgnoreCase("size")) {
     // part 2 contains file name
-    if(systemActive){
-        Serial.println("Opening file: " + part2 + ".txt");
-        file = SD.open(part2 + ".txt");
-        if(file){
-            Serial.println("File size: " + (String)file.size() + " bytes");
-            file.close();
-        }
-        else Serial.println("File not found!");
+    if (systemActive) {
+      Serial.println("Opening file: " + part2 + ".txt");
+      file = SD.open(part2 + ".txt");
+      if (file) {
+        Serial.println("File size: " + (String)file.size() + " bytes");
+        file.close();
+      }
+      else Serial.println("File not found!");
     }
     else Serial.println("SD card connection Error!");
   }
   else if (part1.equalsIgnoreCase("download")) {
-    if(systemActive){
-        Serial.println("Downloading file: " + part2 + ".txt");
-        Serial.println();
-        file = SD.open(part2 + ".txt");
-        if(file) {
-            while(file.available()){
-                Serial.write(file.read());    
-            }
-            file.close();
-            Serial.println("End of File");
+    if (systemActive) {
+      Serial.println("Downloading file: " + part2 + ".txt");
+      Serial.println();
+      file = SD.open(part2 + ".txt");
+      if (file) {
+        while (file.available()) {
+          Serial.write(file.read());
         }
-        else Serial.println("File not found!");
+        file.close();
+        Serial.println("End of File");
+      }
+      else Serial.println("File not found!");
+    }
+    else Serial.println("SD card connection Error!");
+  }
+  else if (part1.equalsIgnoreCase("delete")) {
+    if (systemActive) {
+      if (SD.exists(part2 + ".txt")) {
+        Serial.println("Deleting file: " + part2 + ".txt");
+        Serial.println();
+        SD.remove(part2 + ".txt");
+        Serial.println("File Removed");
+      }
+      else Serial.println("File not found");
+    }
+    else Serial.println("SD card connection Error!");
+  }
+  
+  else if (part1.equalsIgnoreCase("create")) {
+    if (systemActive) {
+      if (SD.exists(part2 + ".txt")) {
+        Serial.println("File already exist");
+      }
+      else{
+        Serial.println("Creating file: " + part2 + ".txt");
+        file = SD.open(part2 + ".txt", FILE_WRITE);
+        file.close();
+      }
     }
     else Serial.println("SD card connection Error!");
   }
