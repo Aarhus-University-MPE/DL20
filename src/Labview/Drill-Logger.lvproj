@@ -12,7 +12,14 @@
 		<Property Name="specify.custom.address" Type="Bool">false</Property>
 		<Item Name="Functions" Type="Folder">
 			<Item Name="Connections" Type="Folder">
+				<Item Name="ConnectionArduino.vi" Type="VI" URL="../ConnectionArduino.vi"/>
 				<Item Name="ConnectionStatus.vi" Type="VI" URL="../ConnectionStatus.vi"/>
+				<Item Name="Scan_FileList.vi" Type="VI" URL="../Scan_FileList.vi"/>
+			</Item>
+			<Item Name="Download" Type="Folder">
+				<Item Name="ArduinoGrab.vi" Type="VI" URL="../ArduinoGrab.vi"/>
+				<Item Name="Download_Folder_Prompt.vi" Type="VI" URL="../Download_Folder_Prompt.vi"/>
+				<Item Name="Download_Save.vi" Type="VI" URL="../Download_Save.vi"/>
 			</Item>
 			<Item Name="Settings" Type="Folder">
 				<Item Name="Options.vi" Type="VI" URL="../Options.vi"/>
@@ -31,11 +38,7 @@
 				<Item Name="RunTimeMenu_Partition.rtm" Type="Document" URL="../RunTimeMenu_Partition.rtm"/>
 			</Item>
 		</Item>
-		<Item Name="ArduinoGrab.vi" Type="VI" URL="../ArduinoGrab.vi"/>
-		<Item Name="ConnectionArduino.vi" Type="VI" URL="../ConnectionArduino.vi"/>
-		<Item Name="Download_Folder_Prompt.vi" Type="VI" URL="../Download_Folder_Prompt.vi"/>
 		<Item Name="main.vi" Type="VI" URL="../main.vi"/>
-		<Item Name="Scan_FileList.vi" Type="VI" URL="../Scan_FileList.vi"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="Add State(s) to Queue__JKI_lib_State_Machine.vi" Type="VI" URL="/&lt;vilib&gt;/addons/_JKI Toolkits/State Machine/_JKI_lib_State_Machine.llb/Add State(s) to Queue__JKI_lib_State_Machine.vi"/>
