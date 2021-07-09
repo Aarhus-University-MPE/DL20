@@ -13,7 +13,7 @@
 */
 
 /*------------------------------------------------------
-                     Defines
+                     Preamble
   -------------------------------------------------------*/
 
 #define Modem_serial Serial
@@ -21,8 +21,11 @@
 #define IDS4000_1_SERIAL Serial2
 #define IDS4000_2_SERIAL Serial3
 
+//#define MODEM_COMM  1 // <-- Uncomment for Low speed modem communication
+#define PC_COMM 1       // <-- Uncomment for High speed PC communication
+
 /*------------------------------------------------------
-                     Inkludere biblioteker
+                     Libraries
   -------------------------------------------------------*/
 
 #include <Wire.h>
@@ -50,6 +53,7 @@ void initTimer3();
 void aflaes_tryknap();
 void til_steng();
 void gem_samlet_streng();
+void Initialize_Comm();
 
 /*------------------------------------------------------
                      Opretter variabler
@@ -61,7 +65,7 @@ void gem_samlet_streng();
 
 struct state {
 
-  unsigned int sending;
+  unsigned long sending;
   String sending_string;
 
   //ISD4000_1
@@ -113,10 +117,19 @@ const int chipSelect = 53;
 String filename;
 
 // Time between each logged data
+#ifdef MODEM_COMM
 const unsigned int sampleDt = 500;
+#elif PC_COMM
+const unsigned int sampleDt = 2000;
+#endif
+
+const unsigned int surfaceFrequency = 1; // <--- every xth sample also broadcast (either serial USB or Modem)
+
 unsigned long prevSample;
-const unsigned int surfaceFrequency = 1; // every xth sample also sent to surface
 bool dataReady[3];
+
+const int buzzerPin = 12;
+const int buzzerPinHigh = 13;
 
 
 
@@ -126,28 +139,51 @@ bool dataReady[3];
 
 void setup(void)
 {
-  //Kommunikation
-  //Opretter serial kommunikation 8N1 600 til
-  //Computer/transformer
-  Modem_serial.begin(600);
-  //Serial.begin(115200);
-  data_til_overflade = surfaceFrequency;
-
+  bool systemActive = false;
   //Trykknap
   pinMode(Aflaesning_knap, INPUT);
 
+  // Buzzer
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(buzzerPinHigh, OUTPUT);
+  analogWrite(buzzerPinHigh, 255 / 2);
+  analogWrite(buzzerPin, 0);
+  delay(250);
+  analogWrite(buzzerPinHigh, 0);
+
   delay(10);
-  if (!digitalRead(Aflaesning_knap)) {
-    delay(1000);
-    if (!digitalRead(Aflaesning_knap)) {
-      // Set SPI pins as INPUT
-      pinMode(50, INPUT);
-      pinMode(51, INPUT);
-      pinMode(52, INPUT);
-      pinMode(53, INPUT);
-      while (1);
+
+  // Set SPI pins as INPUT (Enables external communication with SD card)
+  pinMode(50, INPUT);
+  pinMode(51, INPUT);
+  pinMode(52, INPUT);
+  pinMode(53, INPUT);
+
+  while (!systemActive) {
+    //Button press activates system
+    if (digitalRead(Aflaesning_knap) == 0) {
+      delay(1000);
+      if (digitalRead(Aflaesning_knap) == 0) {
+        systemActive = true;
+      }
+    }
+    else {
+      analogWrite(buzzerPin, 255 / 2);
+      delay(200);
+      analogWrite(buzzerPin, 0);
+      delay(1800);
     }
   }
+
+  //Kommunikation
+  //Opretter serial kommunikation 8N1 600 til
+  //Computer/transformer
+#ifdef  MODEM_COMM
+  Modem_serial.begin(600);
+#elif PC_COMM
+  Serial.begin(115200);
+#endif
+  data_til_overflade = surfaceFrequency;
 
   //Opretter serial kommunikation 8N1 9600 til ODM3
   ODM3_serial.begin(9600);
@@ -164,16 +200,35 @@ void setup(void)
 
   //Klargoer SD kort
   //Initialisere SD kort
-  SD.begin(chipSelect);
-  //Opretter fil, hvis der ikke er en  forvejen
+  while (!SD.begin(chipSelect)) {
+#ifdef MODEM_COMM
+    Modem_serial.println("SD connection error");
+#elif PC_COMM
+    Serial.println("SD connection error");
+#endif
+
+    analogWrite(buzzerPin, 255 / 2);
+    delay(500);
+    analogWrite(buzzerPin, 0);
+    delay(500);
+  }
+
+  //Opretter fil
   unsigned int fileNameExtension = 0;
   while (SD.exists("Data_" + (String)fileNameExtension + ".txt")) fileNameExtension++;
   filename = "Data_" + (String)fileNameExtension + ".txt";
 
   File datafil = SD.open(filename, FILE_WRITE);
-
   //Lukker fil
   datafil.close();
+
+  analogWrite(buzzerPinHigh, 255 / 2);
+  delay(100);
+  analogWrite(buzzerPinHigh, 0);
+  delay(100);
+  analogWrite(buzzerPinHigh, 255 / 2);
+  delay(100);
+  analogWrite(buzzerPinHigh, 0);
 }
 
 /*------------------------------------------------------
@@ -226,10 +281,13 @@ void samle_streng()
 //Funktion til at sende data til overfladen
 void send_til_overflade()
 {
+#ifdef  MODEM_COMM
   Modem_serial.println(state.SamletDataPakke);
   Modem_serial.println();
-  //Serial.println(state.SamletDataPakke);
-  //Serial.println();
+#elif PC_COMM
+  Serial.println(state.SamletDataPakke);
+  Serial.println();
+#endif
 }
 
 // Funktion til at gemme steng fra sensor
@@ -276,6 +334,9 @@ void processIncomingByte (const byte inByte, const int nummer)
       validData[id] = false;
       // Bufferen resættes
       input_pos[id] = 0;
+      for (int i = 0; i < MAX_INPUT; i++) {
+        input_line[id][i] = 0;
+      }
       break;
 
     case '\r':
@@ -332,6 +393,11 @@ void aflaes_temperatur()
 {
   state.temperatur_spaending = ads.readADC_SingleEnded(0);
   delay(1);
+}
+
+//Initializes communication and datalog file
+void Initialize_Comm() {
+
 }
 
 /*------------------------------------------------------

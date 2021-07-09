@@ -33,6 +33,16 @@ void setup() {
 }
 
 void loop() {
+  if (!systemActive) {
+    if (!SD.begin(chipSelect)) {
+      systemActive = false;
+      //Serial.println("Connection Failed!");
+    }
+    else {
+      systemActive = true;
+      //Serial.println("initialization done.");
+    }
+  }
   recvWithEndMarker();
 
   delay(250);
@@ -150,13 +160,13 @@ void parseCommand(String com)
     }
     else Serial.println("SD card connection Error!");
   }
-  
+
   else if (part1.equalsIgnoreCase("create")) {
     if (systemActive) {
       if (SD.exists(part2 + ".txt")) {
         Serial.println("File already exist");
       }
-      else{
+      else {
         Serial.println("Creating file: " + part2 + ".txt");
         file = SD.open(part2 + ".txt", FILE_WRITE);
         file.close();
