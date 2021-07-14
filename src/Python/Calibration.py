@@ -31,13 +31,16 @@ folder = 'C:\\Users\\au540322\\Documents\\Projects\\Drill-Logger\\Data\\Calibrat
 fileList = [name for name in os.listdir(folder) if os.path.isfile(os.path.join(folder, name))]
 
 #%%
-windowSize =[100, 30, 100, 100, 100]
-dataColumn = [6]
+windowSize =[100, 30, 100, 100, 100, 100]
+dataColumn = [3]
 
 ax = plt.axes()
 ax.set_title(str("Thermistor Data"),fontsize = 30)
 ax.set_ylabel('Digital Value', fontsize = 25)
-ax.set_xlabel('Sample Nr', fontsize = 25)
+
+#ax.set_title(str("ISM4000 Temperature Values"),fontsize = 30)
+#ax.set_ylabel('Temperature [°C]', fontsize = 25)
+#ax.set_xlabel('Sample Nr', fontsize = 25)
 
 ax.minorticks_on()
 ax.grid(True)
@@ -52,7 +55,8 @@ for idx, file in enumerate(fileList):
     for column in dataColumn:
         if(column == 6 or column == 7):
             ConvertISD4000()
-    
+        
+        msft.iloc[:,column] = msft.iloc[:,column] * 0.00007629394
         rolling_windows = msft.iloc[:,column].rolling(windowSize[idx], min_periods=1)
         mus = rolling_windows.mean()
         medians = rolling_windows.median()

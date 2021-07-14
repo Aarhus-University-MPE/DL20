@@ -178,11 +178,11 @@ void setup(void)
   //Kommunikation
   //Opretter serial kommunikation 8N1 600 til
   //Computer/transformer
-#ifdef  MODEM_COMM
-  Modem_serial.begin(600);
-#elif PC_COMM
-  Serial.begin(115200);
-#endif
+  #ifdef  MODEM_COMM
+    Modem_serial.begin(600);
+  #elif PC_COMM
+    Serial.begin(115200);
+  #endif
   data_til_overflade = surfaceFrequency;
 
   //Opretter serial kommunikation 8N1 9600 til ODM3
@@ -201,11 +201,11 @@ void setup(void)
   //Klargoer SD kort
   //Initialisere SD kort
   while (!SD.begin(chipSelect)) {
-#ifdef MODEM_COMM
-    Modem_serial.println("SD connection error");
-#elif PC_COMM
-    Serial.println("SD connection error");
-#endif
+    #ifdef MODEM_COMM
+        Modem_serial.println("SD connection error");
+    #elif PC_COMM
+        Serial.println("SD connection error");
+    #endif
 
     analogWrite(buzzerPin, 255 / 2);
     delay(500);
@@ -395,10 +395,6 @@ void aflaes_temperatur()
   delay(1);
 }
 
-//Initializes communication and datalog file
-void Initialize_Comm() {
-
-}
 
 /*------------------------------------------------------
                      Hovedeløkke
