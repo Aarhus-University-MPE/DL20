@@ -24,6 +24,9 @@
 //#define MODEM_COMM  1 // <-- Uncomment for Low speed modem communication
 #define PC_COMM 1       // <-- Uncomment for High speed PC communication
 
+#define WAIT_FOR_DATA false // False (non blocking) will save even if no new data from ODM/ISD4000, True (blocking) will wait for new ODM/ISD4000 data
+
+
 /*------------------------------------------------------
                      Libraries
   -------------------------------------------------------*/
@@ -69,13 +72,13 @@ struct state {
   String sending_string;
 
   //ISD4000_1
-  String ISD4000_1;
+  String ISD4000_1 = "ISD4000_1 N/A";
 
   //ISD4000_2
-  String ISD4000_2;
+  String ISD4000_2 = "ISD4000_2 N/A";
 
   //ODM3
-  String ODM;
+  String ODM = "ODM N/A";
 
   //Transdoucer 1
   int transdoucer_1;
@@ -212,6 +215,10 @@ void setup(void)
     analogWrite(buzzerPin, 0);
     delay(500);
   }
+
+  dataReady[0] = !WAIT_FOR_DATA;
+  dataReady[1] = !WAIT_FOR_DATA;
+  dataReady[2] = !WAIT_FOR_DATA;
 
   //Opretter fil
   unsigned int fileNameExtension = 0;
@@ -427,9 +434,9 @@ void loop(void)
     state.sending++;
     gem_samlet_streng();
 
-    dataReady[0] = false;
-    dataReady[1] = false;
-    dataReady[2] = false;
+    dataReady[0] = !WAIT_FOR_DATA;
+    dataReady[1] = !WAIT_FOR_DATA;
+    dataReady[2] = !WAIT_FOR_DATA;
 
     data_til_overflade++;
     if (data_til_overflade >= surfaceFrequency)
@@ -439,6 +446,11 @@ void loop(void)
     }
     else {
     }
+
+    //Reset sensor data
+    state.ISD4000_1 = "ISD4000_1 N/A";
+    state.ISD4000_2 = "ISD4000_2 N/A";
+    state.ODM = "ODM N/A";
   }
   else {
     delay(10);
