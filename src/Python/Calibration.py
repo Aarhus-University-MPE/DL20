@@ -56,7 +56,7 @@ for idx, file in enumerate(fileList):
         if(column == 6 or column == 7):
             ConvertISD4000()
         
-        msft.iloc[:,column] = msft.iloc[:,column] * 0.00007629394
+        msft.iloc[:,column] = msft.iloc[:,column] * 0.00007629394 * 2
         rolling_windows = msft.iloc[:,column].rolling(windowSize[idx], min_periods=1)
         mus = rolling_windows.mean()
         medians = rolling_windows.median()
